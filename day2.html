@@ -30,6 +30,19 @@
       }
     </style>
     <script>
+      var posX = 42;
+      var posY = 33;
+      var minPosX = 42;
+      var minPosY = 33;
+      var maxPosX = 1042;
+      var maxPosY = 285;
+      var speedX = 0;
+      var speedY = 0;
+      var maxSpeedX = 10;
+      var maxSpeedY = 10;
+      var minSpeedX = -10;
+      var minSpeedY = -10;
+
       function AirHockeyObject() {
         var body = document.getElementsByTagName("body")[0];
         var element = document.createElement("div");
@@ -37,11 +50,48 @@
         element.style.width = "200px";
         element.style.background = "white";
         element.style.position = "absolute";
-        element.style.top = "33px";
-        element.style.left = "42px";
+        element.style.top = posY + "px";
+        element.style.left = posX + "px";
         body.appendChild(element);
+        return element;
       }
-      AirHockeyObject();
+      var elem = AirHockeyObject();
+
+      function move() {
+        if (speedX != 0) {
+          var newPosX = posX + speedX;
+        }
+        if (speedY != 0) {
+          var newPosY = posY + speedY;
+        }
+        if (newPosX <= maxPosX && newPosX >= minPosX) {
+          posX = newPosX;
+          elem.style.left = newPosX + "px";
+        }
+        if (speedY <= maxPosY && newPosY >= minPosY) {
+          posY = newPosY;
+          elem.style.left = newPosX + "px";
+        }
+      }
+
+      setInterval(function() {
+        move();
+      }, 20);
+
+      document.addEventListener("keydown", function(event) {
+        if (event.keyCode === 39) {
+          speedX = 10;
+        } else if (event.keyCode === 37) {
+          speedX = -10;
+        } else if (event.keyCode === 40) {
+          speedY = 40;
+        }
+      });
+      document.addEventListener("keyup", function(event) {
+        if (event.keyCode === 39 || 37) {
+          speedX = 0;
+        }
+      });
     </script>
   </body>
 </html>
