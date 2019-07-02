@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="gameplayinFieldPart1"></div>
+    <div id="gameplayinFieldPart2"></div>
+    <style>
+      body {
+        background: black;
+        padding-left: 29px;
+        padding-top: 20px;
+      }
+      #gameplayinFieldPart1 {
+        width: 1200px;
+        height: 325px;
+        border: 5px solid red;
+        border-bottom: 2.5px solid red;
+      }
+      #gameplayinFieldPart2 {
+        width: 1200px;
+        height: 325px;
+        border: 5px solid red;
+        border-top: 2.5px solid red;
+      }
+    </style>
+    <script>
+      function AirHockeyObject() {
+        var body = document.getElementsByTagName("body")[0];
+        var element = document.createElement("div");
+        element.style.height = "40px";
+        element.style.width = "200px";
+        element.style.background = "white";
+        element.style.position = "absolute";
+        element.style.top = "33px";
+        element.style.left = "42px";
+        body.appendChild(element);
+      }
+      AirHockeyObject();
+    </script>
+  </body>
+</html>
