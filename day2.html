@@ -30,68 +30,134 @@
       }
     </style>
     <script>
-      var posX = 42;
-      var posY = 33;
-      var minPosX = 42;
-      var minPosY = 33;
-      var maxPosX = 1042;
-      var maxPosY = 285;
-      var speedX = 0;
-      var speedY = 0;
-      var maxSpeedX = 10;
-      var maxSpeedY = 10;
-      var minSpeedX = -10;
-      var minSpeedY = -10;
+      class BaseAirHockeyObject {
+        constructor(position, height, width) {
+          this.body = document.getElementsByTagName("body")[0];
+          this.element = document.createElement("div");
+          this.position = position;
 
-      function AirHockeyObject() {
-        var body = document.getElementsByTagName("body")[0];
-        var element = document.createElement("div");
-        element.style.height = "40px";
-        element.style.width = "200px";
-        element.style.background = "white";
-        element.style.position = "absolute";
-        element.style.top = posY + "px";
-        element.style.left = posX + "px";
-        body.appendChild(element);
-        return element;
+          this.speed = {
+            x: 0,
+            y: 0,
+            maxSpeed: 10
+          };
+
+          this.element.style.height = height + "px";
+          this.element.style.width = width + "px";
+          this.element.style.background = "white";
+          this.element.style.position = "absolute";
+          this.element.style.top = this.position.y + "px";
+          this.element.style.left = this.position.x + "px";
+
+          setInterval(() => {
+            this.move();
+          }, 20);
+
+          this.body.appendChild(this.element);
+        }
+        move() {
+          this.control();
+          if (this.speed.x != 0) {
+            var newPosX = this.position.x + this.speed.x;
+          }
+          if (this.speed.y != 0) {
+            var newPosY = this.position.y + this.speed.y;
+          }
+          if (newPosX <= this.position.maxX && newPosX >= this.position.minX) {
+            this.position.x = newPosX;
+            this.element.style.left = newPosX + "px";
+          }
+          if (newPosY <= this.position.maxY && newPosY >= this.position.minY) {
+            this.position.y = newPosY;
+            this.element.style.top = newPosY + "px";
+          }
+        }
+        control() {}
       }
-      var elem = AirHockeyObject();
 
-      function move() {
-        if (speedX != 0) {
-          var newPosX = posX + speedX;
+      class Ball extends BaseAirHockeyObject {
+        constructor(position, height, width) {
+          super(position, height, width);
         }
-        if (speedY != 0) {
-          var newPosY = posY + speedY;
+        control() {}
+      }
+
+      class Player1 extends BaseAirHockeyObject {
+        constructor(position, height, width) {
+          super(position, height, width);
+          this.custom();
         }
-        if (newPosX <= maxPosX && newPosX >= minPosX) {
-          posX = newPosX;
-          elem.style.left = newPosX + "px";
-        }
-        if (speedY <= maxPosY && newPosY >= minPosY) {
-          posY = newPosY;
-          elem.style.left = newPosX + "px";
+        custom() {
+          this.buttonsPressed = {
+            left: false,
+            right: false,
+            top: false,
+            bottom: false
+          };
+          document.addEventListener("keydown", event => {
+            switch (event.keyCode) {
+              case 37:
+                this.buttonsPressed.left = true;
+                this.speed.x = -this.speed.maxSpeed;
+                break;
+              case 39:
+                this.buttonsPressed.right = true;
+                this.speed.x = this.speed.maxSpeed;
+                break;
+              case 38:
+                this.buttonsPressed.top = true;
+                this.speed.y = -this.speed.maxSpeed;
+                break;
+              case 40:
+                this.buttonsPressed.bottom = true;
+                this.speed.y = this.speed.maxSpeed;
+                break;
+            }
+          });
+          document.addEventListener("keyup", event => {
+            switch (event.keyCode) {
+              case 37:
+                this.buttonsPressed.left = false;
+                break;
+              case 39:
+                this.buttonsPressed.right = false;
+                break;
+              case 38:
+                this.buttonsPressed.top = false;
+                break;
+              case 40:
+                this.buttonsPressed.bottom = false;
+                break;
+            }
+            if (!this.buttonsPressed.right && !this.buttonsPressed.left) {
+              this.speed.x = 0;
+            }
+            if (!this.buttonsPressed.top && !this.buttonsPressed.bottom) {
+              this.speed.y = 0;
+            }
+          });
         }
       }
 
-      setInterval(function() {
-        move();
-      }, 20);
+      let positionPlayer1 = {
+        x: 42,
+        y: 33,
+        minX: 42,
+        minY: 33,
+        maxX: 1042,
+        maxY: 320
+      };
+      let player1 = new Player1(positionPlayer1, 40, 200);
 
-      document.addEventListener("keydown", function(event) {
-        if (event.keyCode === 39) {
-          speedX = 10;
-        } else if (event.keyCode === 37) {
-          speedX = -10;
-        } else if (event.keyCode === 40) {
-          speedY = 40;
-        }
-      });
-      document.addEventListener("keyup", function(event) {
-        if (event.keyCode === 39 || 37) {
-          speedX = 0;
-        }
-      });
+      let positionBall = {
+        x: 600,
+        y: 340,
+        minX: 42,
+        minY: 33,
+        maxX: 1202,
+        maxY: 648
+      };
+      let ball = new Ball(positionBall, 40, 40);
     </script>
   </body>
 </html>
