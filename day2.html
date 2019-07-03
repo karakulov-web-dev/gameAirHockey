@@ -42,6 +42,9 @@
             maxSpeed: 10
           };
 
+          this.height = height;
+          this.width = width;
+
           this.element.style.height = height + "px";
           this.element.style.width = width + "px";
           this.element.style.background = "white";
@@ -78,8 +81,52 @@
       class Ball extends BaseAirHockeyObject {
         constructor(position, height, width) {
           super(position, height, width);
+          this.speed = {
+            x: 10,
+            y: 10,
+            maxSpeed: 10
+          };
         }
-        control() {}
+        control() {
+          if (
+            this.position.x >= this.position.maxX - 10 ||
+            this.position.x <= this.position.minX + 10
+          ) {
+            this.speed.x = -this.speed.x;
+          }
+          if (
+            this.position.y >= this.position.maxY - 10 ||
+            this.position.y <= this.position.minY + 10
+          ) {
+            this.speed.y = -this.speed.y;
+          }
+          if (this.player1) {
+            if (
+              this.position.y <=
+                this.player1.position.y + 1 + this.player1.height &&
+              this.position.x >= this.player1.position.x &&
+              this.position.x <= this.player1.position.x + this.player1.width
+            ) {
+              this.speed.y = -this.speed.y;
+            }
+          }
+
+          if (this.player2) {
+            if (
+              this.position.y >= this.player2.position.y - 1 &&
+              this.position.x >= this.player2.position.x &&
+              this.position.x <= this.player2.position.x + this.player2.width
+            ) {
+              this.speed.y = -this.speed.y;
+            }
+          }
+        }
+        setPlayer1(player) {
+          this.player1 = player;
+        }
+        setPlayer2(player) {
+          this.player2 = player;
+        }
       }
 
       class Player1 extends BaseAirHockeyObject {
@@ -139,6 +186,12 @@
         }
       }
 
+      class Player2 extends BaseAirHockeyObject {
+        constructor(position, height, width) {
+          super(position, height, width);
+        }
+      }
+
       let positionPlayer1 = {
         x: 42,
         y: 33,
@@ -149,6 +202,17 @@
       };
       let player1 = new Player1(positionPlayer1, 40, 200);
 
+      let positionPlayer2 = {
+        x: 1042,
+        y: 645,
+        minX: 42,
+        minY: 365,
+        maxX: 1042,
+        maxY: 645
+      };
+
+      let player2 = new Player2(positionPlayer2, 40, 200);
+
       let positionBall = {
         x: 600,
         y: 340,
@@ -158,6 +222,8 @@
         maxY: 648
       };
       let ball = new Ball(positionBall, 40, 40);
+      ball.setPlayer1(player1);
+      ball.setPlayer2(player2);
     </script>
   </body>
 </html>
