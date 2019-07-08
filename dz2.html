@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <div id="gameplayinFieldPart1"></div>
+    <div id="gameplayinFieldPart2"></div>
+    <style>
+      body {
+        background: black;
+        padding-left: 29px;
+        padding-top: 20px;
+      }
+      #gameplayinFieldPart1 {
+        width: 1200px;
+        height: 325px;
+        border: 5px solid red;
+        border-bottom: 2.5px solid red;
+      }
+      #gameplayinFieldPart2 {
+        width: 1200px;
+        height: 325px;
+        border: 5px solid red;
+        border-top: 2.5px solid red;
+      }
+    </style>
+    <script>
+      class BaseAirHockeyObject /* Базовый класс для Ball,Player1,Player2 */ {
+        constructor(
+          position,
+          height,
+          width
+        ) /* Передаем в конструктор обьект position ( с координатами и границами по осям x y) , а также ширину и высоту   */ {
+          this.body = document.getElementsByTagName("body")[0]; //получаем html елемент body
+          this.element = document.createElement("div"); // создаем новый html елемент
+          this.position = position;
+
+          this.speed = {
+            /*
+            создаем обьект speed который будет содержать параметры скорости екземпляра класса
+            Например если установить this.speed.x = 10 то обьект будет двигатся вправо со скоростью 10,
+            а если установить this.speed.x = -5 то обьект будет двигаться влево со скоростью 5
+            */
+            x: 0,
+            y: 0,
+            maxSpeed: 5
+          };
+
+          this.height = height; // сохраняем высоту екземпляра класса
+          this.width = width; // сохраняем ширину екземпляра класса
+
+          this.element.style.height = height + "px"; // установать html елементу выстоу в пикселях
+          this.element.style.width = width + "px"; // установать html елементу ширину в пикселях
+          this.element.style.background = "white"; // установать html елементу белый цвет
+          this.element.style.position = "absolute"; // назначить способ позиционирования как абсолютный
+          this.element.style.top = this.position.y + "px"; // установать html елементу позицию
+          this.element.style.left = this.position.x + "px";
+
+          setInterval(() => {
+            this.move(); // вызов функции this.move() раз в 20 милисекунд
+          }, 20);
+
+          this.body.appendChild(this.element);
+        }
+        move() {
+          this.control(); //  вызов функции this.control()
+          if (this.speed.x != 0) {
+            var newPosX = this.position.x + this.speed.x;
+          }
+          if (this.speed.y != 0) {
+            var newPosY = this.position.y + this.speed.y;
+          }
+          if (newPosX <= this.position.maxX && newPosX >= this.position.minX) {
+            this.position.x = newPosX;
+            this.element.style.left = newPosX + "px";
+          }
+          if (newPosY <= this.position.maxY && newPosY >= this.position.minY) {
+            this.position.y = newPosY;
+            this.element.style.top = newPosY + "px";
+          }
+        }
+        control() {} /* в теле этой функции можно произвести расчеты скорости и направления екземпляра класса
+        для этого ее следует переопределить в дочерних классах
+        */
+        setPlayer1(player) {
+          this.player1 = player;
+        }
+        setPlayer2(player) {
+          this.player2 = player;
+        }
+        setBall(ball) {
+          this.ball = ball;
+        }
+      }
+
+      class Ball extends BaseAirHockeyObject /* Ball наследует функционал BaseAirHockeyObject */ {
+        constructor(position, height, width) {
+          super(position, height, width);
+          this.speed = {
+            x: 10,
+            y: 10,
+            maxSpeed: 10
+          };
+        }
+        control() /* функция контролирует движение мяча (екземпляра класса Ball) */ {
+          if (
+            this.position.x >= this.position.maxX - 10 ||
+            this.position.x <= this.position.minX + 10
+          ) {
+            this.speed.x = -this.speed.x;
+          }
+          if (
+            this.position.y >= this.position.maxY - 10 ||
+            this.position.y <= this.position.minY + 10
+          ) {
+            this.speed.y = -this.speed.y;
+          }
+          if (this.player1) {
+            if (
+              this.position.y <=
+                this.player1.position.y + 1 + this.player1.height &&
+              this.position.x >= this.player1.position.x &&
+              this.position.x <= this.player1.position.x + this.player1.width
+            ) {
+              this.speed.y = -this.speed.y;
+            }
+          }
+
+          if (this.player2) {
+            if (
+              this.position.y >= this.player2.position.y - 1 &&
+              this.position.x >= this.player2.position.x &&
+              this.position.x <= this.player2.position.x + this.player2.width
+            ) {
+              this.speed.y = -this.speed.y;
+            }
+          }
+        }
+      }
+
+      class Player1 extends BaseAirHockeyObject /* Player1 наследует функционал BaseAirHockeyObject */ {
+        constructor(position, height, width) {
+          super(position, height, width); // сконструируем обьект также как его предка (BaseAirHockeyObject)
+          this.custom(); // и добавим вызов фуункции custom()
+        }
+        custom() {
+          // в этой функции мы добавим обработку нажатий клавиш на клавиатуре
+          this.buttonsPressed = {
+            left: false,
+            right: false,
+            top: false,
+            bottom: false
+          };
+
+          document.addEventListener("keydown", event => {
+            /* Обработка нажатия кнопки */
+            switch (event.keyCode) {
+              case 37: // стрелка влево
+                this.buttonsPressed.left = true;
+                this.speed.x = -this.speed.maxSpeed;
+                break;
+              case 39: // стрелка вправо
+                this.buttonsPressed.right = true;
+                this.speed.x = this.speed.maxSpeed;
+                break;
+              case 38: // стрелка вверх
+                this.buttonsPressed.top = true;
+                this.speed.y = -this.speed.maxSpeed;
+                break;
+              case 40: // стрелка вниз
+                this.buttonsPressed.bottom = true;
+                this.speed.y = this.speed.maxSpeed;
+                break;
+            }
+          });
+          document.addEventListener("keyup", event => {
+            /* Обработка отпускания кнопки */
+            switch (event.keyCode) {
+              case 37: // стрелка влево
+                this.buttonsPressed.left = false;
+                break;
+              case 39: // стрелка вправо
+                this.buttonsPressed.right = false;
+                break;
+              case 38: // стрелка вверх
+                this.buttonsPressed.top = false;
+                break;
+              case 40: // стрелка вниз
+                this.buttonsPressed.bottom = false;
+                break;
+            }
+            if (!this.buttonsPressed.right && !this.buttonsPressed.left) {
+              this.speed.x = 0;
+            }
+            if (!this.buttonsPressed.top && !this.buttonsPressed.bottom) {
+              this.speed.y = 0;
+            }
+          });
+        }
+      }
+
+      class Player2 extends BaseAirHockeyObject /* Player2 наследует функционал BaseAirHockeyObject */ {
+        constructor(position, height, width) {
+          super(position, height, width); // сконструируем обьект также как его предка (BaseAirHockeyObject)
+        }
+        control() {
+          // код для управлением экземпляром класса Player2, можно писать здесь
+
+          if (this.ball.speed.x == 10) {
+            this.speed.x = this.speed.maxSpeed;
+          }
+          if (this.ball.speed.x == -10) {
+            this.speed.x = -this.speed.maxSpeed;
+          }
+          if (this.ball.speed.y == 10) {
+            this.speed.y = -this.speed.maxSpeed;
+          }
+          if (this.ball.speed.y == -10) {
+            this.speed.y = this.speed.maxSpeed;
+          }
+          // this.speed.x  - скорость по x
+          // this.width - ширина
+          // this.height - высота
+          // console.log();
+        }
+      }
+
+      let positionPlayer1 = {
+        x: 42,
+        y: 33,
+        minX: 42,
+        minY: 33,
+        maxX: 1042,
+        maxY: 320
+      };
+      let player1 = new Player1(positionPlayer1, 40, 200);
+
+      let positionPlayer2 = {
+        x: 1042,
+        y: 645,
+        minX: 42,
+        minY: 365,
+        maxX: 1042,
+        maxY: 645
+      };
+
+      let player2 = new Player2(positionPlayer2, 40, 200);
+
+      let positionBall = {
+        x: 600,
+        y: 340,
+        minX: 42,
+        minY: 33,
+        maxX: 1202,
+        maxY: 648
+      };
+      let ball = new Ball(positionBall, 40, 40);
+      ball.setPlayer1(player1);
+      ball.setPlayer2(player2);
+
+      player2.setBall(ball);
+      player2.setPlayer1(player1);
+    </script>
+  </body>
+</html>
